@@ -4,8 +4,13 @@ import os
 import hashlib
 from pathlib import Path
 import time
+import subprocess
+import json
+import os
+
 #!!!下面是你需要修改的东西!!!
 home = r"D:\Music\QQ_Music_Download\VipSongsDownload"#设置你的QQ 音乐下载目录
+m4a_output_dir = r'' #设置你的m4a 保存目录
 
 
 def init_QD():
@@ -75,7 +80,9 @@ def init_QD():
     session.detach()
     print('[Info]已处理完成mgg文件')
 
-
+def ogg2m4a():
+    # 定义输入和输出目录
+    ogg_input = r'QQ-Music-decrypt-temp'
 
 
 init_QD()
