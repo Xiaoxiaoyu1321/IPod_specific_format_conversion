@@ -17,15 +17,16 @@
 
 ### 使用方法：  
 1.您的电脑需安装Python 3.6.6 或更新版本的Python[下载Python](https://python.org)   
-2.下载ffmpeg 并放置到 bin\\ffmpeg 文件夹 [下载 ffmpeg Windows的构建](https://www.gyan.dev/ffmpeg/builds/)     
-3.通过pip 安装依赖    
+2.Clone项目main 分支或从 [*Release*](https://github.com/Xiaoxiaoyu1321/IPod_specific_format_conversion/releases) 下载  
+3.下载ffmpeg 并放置到 bin\\ffmpeg 文件夹 [下载 ffmpeg Windows的构建](https://www.gyan.dev/ffmpeg/builds/)     
+4.通过pip 安装依赖    
 ```Python
 # 一般情况：
 pip install frida
 # 无法找到pip:
 python -m pip install frida
 ```
-4.通过Python 运行您需要使用的脚本。
+5.通过Python 运行您需要使用的脚本。
 ```
 python mgg2mp4a.py
 ```
