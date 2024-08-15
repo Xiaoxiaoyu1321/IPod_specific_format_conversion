@@ -1,9 +1,17 @@
 # iPod_Specific_Format_Conversion
 一个可以用来将各种文件格式转换为适用于iPod的脚本集    
 
+### 实现的基本功能   
+- [x] mgg -> m4a
+- [x] flac -> m4a (1411Kbps)
+- [x] ogg -> m4a
+- [x] mp4 (适用于iPod 的分辨率与码率)
+- [x] wav -> m4a
+
 ### 文件夹命名定义：  
 在仓库根目录下的基本为整合类型，比如* mgg2m4a * 可以协助您直接从mgg 文件转换到 m4a 文件。   
 在Basic 目录下的文件，为基本转换文件，在这里您可以手动选择各个文件的转换。
+
 
 
 
