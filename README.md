@@ -9,15 +9,15 @@
 - [x] wav -> m4a
 
 ### 文件夹命名定义：  
-在仓库根目录下的基本为整合类型，比如* mgg2m4a * 可以协助您直接从mgg 文件转换到 m4a 文件。   
+在仓库根目录下的基本为整合类型，比如 _mgg2m4a_  可以协助您直接从mgg 文件转换到 m4a 文件。   
 在Basic 目录下的文件，为基本转换文件，在这里您可以手动选择各个文件的转换。
 
 
 
 
 ### 使用方法：  
-1.您的电脑需安装Python 3.6.6 或更新版本的Python   
-2.下载ffmpeg 并放置到 bin\\ffmpeg 文件夹 [ffmpeg Windows的构建](https://www.gyan.dev/ffmpeg/builds/)     
+1.您的电脑需安装Python 3.6.6 或更新版本的Python[下载Python](https://python.org)   
+2.下载ffmpeg 并放置到 bin\\ffmpeg 文件夹 [下载 ffmpeg Windows的构建](https://www.gyan.dev/ffmpeg/builds/)     
 3.通过pip 安装依赖    
 ```Python
 # 一般情况：
