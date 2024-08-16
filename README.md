@@ -5,7 +5,7 @@
 - [x] mgg -> m4a
 - [x] flac -> m4a (1411Kbps)
 - [x] ogg -> m4a
-- [x] mp4 (适用于iPod 的分辨率与码率)
+- [x] mp4 (适用于iPod 的规格)
 - [x] wav -> m4a
 
 ### 文件夹命名定义：  
@@ -16,6 +16,10 @@
 
 
 ### 使用方法：  
+由于本项目暂未计划实现GUI界面，故您需要修改Python 文件来实现您的操作。   
+一般情况下，您通过编辑器打开.py 文件的头部即可看到您需要修改的变量。    
+
+#### Windows 的部署方法：
 1.您的电脑需安装Python 3.6.6 或更新版本的Python[下载Python](https://python.org)   
 2.Clone项目main 分支或从 [*Release*](https://github.com/Xiaoxiaoyu1321/IPod_specific_format_conversion/releases) 下载  
 3.下载ffmpeg 并放置到 bin\\ffmpeg 文件夹 [下载 ffmpeg Windows的构建](https://www.gyan.dev/ffmpeg/builds/)     
