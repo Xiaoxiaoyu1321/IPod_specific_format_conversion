@@ -5,7 +5,6 @@ import urllib.parse
 from mutagen.easymp4 import EasyMP4
 
 # 输入和输出目录
-#input_dir = "./input_m4a_files"
 input_dir = r"D:\Music\QQ_Music_Unlocked"
 output_dir = "./output_m4a_files"
 
@@ -17,6 +16,9 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
 def get_qqmusic_data(song_name, artist_name):
+    """
+    从QQ音乐获取歌曲的歌词和专辑封面图片URL。
+    """
     try:
         query = f"{song_name} {artist_name}"
         encoded_query = urllib.parse.quote(query)
@@ -55,6 +57,9 @@ def get_qqmusic_data(song_name, artist_name):
         return None, None
 
 def download_data(lyrics, album_pic_url, song_name):
+    """
+    下载歌词和专辑封面图片。
+    """
     try:
         # 保存歌词
         lyric_file = os.path.join(output_dir, f"{song_name}.txt")
@@ -72,23 +77,33 @@ def download_data(lyrics, album_pic_url, song_name):
         print(f"Error downloading data: {e}")
         return None, None
 
-def embed_data_to_m4a(song_name, audio_file, album_pic_file):
-    output_file = os.path.join(output_dir, f"{song_name}_with_cover.m4a")
-    command = [
-        ffmpeg_path, '-i', audio_file,
-        '-i', album_pic_file,
-        '-c', 'copy',
-        '-metadata:s:v', 'title="Album cover"',
-        '-metadata:s:v', 'comment="Cover (front)"',
-        output_file
-    ]
+def add_cover_to_audio(audio_file, image_file, output_file):
+    """
+    将封面图片添加到音频文件中。
+    """
     try:
+        # 使用 PNG 文件以提高兼容性，并设置 ID3v2 版本为 3
+        command = [
+            ffmpeg_path, '-i', audio_file, '-i', image_file,
+            '-map', '0:a', '-map', '1:v', '-c:a', 'copy', '-c:v', 'png',
+            '-id3v2_version', '3', '-metadata:s:v', 'title="Album cover"', 
+            '-metadata:s:v', 'comment="Cover (front)"',
+            output_file
+        ]
         subprocess.run(command, check=True)
-        print(f"Embedded data into: {output_file}")
+        print(f"成功添加封面到 {output_file}")
+    
     except subprocess.CalledProcessError as e:
         print(f"FFmpeg error: {e}")
 
-# 遍历输入目录中的所有m4a文件
+def embed_data_to_m4a(song_name, audio_file, album_pic_file):
+    """
+    将歌词和封面图片嵌入到 M4A 文件中。
+    """
+    output_file = os.path.join(output_dir, f"{song_name}_with_cover.m4a")
+    add_cover_to_audio(audio_file, album_pic_file, output_file)
+
+# 遍历输入目录中的所有 m4a 文件
 for filename in os.listdir(input_dir):
     if filename.endswith(".m4a"):
         audio_file = os.path.join(input_dir, filename)
@@ -105,7 +120,7 @@ for filename in os.listdir(input_dir):
 
             print(f"Processing: {filename}")
             
-            # 获取QQ音乐数据
+            # 获取 QQ 音乐数据
             lyrics, album_pic_url = get_qqmusic_data(song_name, artist_name)
             
             if lyrics and album_pic_url:
@@ -113,7 +128,7 @@ for filename in os.listdir(input_dir):
                 lyric_file, album_pic_file = download_data(lyrics, album_pic_url, song_name)
                 
                 if lyric_file and album_pic_file:
-                    # 将专辑图片嵌入到m4a文件中
+                    # 将专辑图片嵌入到 m4a 文件中
                     embed_data_to_m4a(song_name, audio_file, album_pic_file)
                 else:
                     print(f"Failed to download data for: {filename}")
