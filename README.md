@@ -36,24 +36,61 @@
 由于本项目暂未计划实现GUI界面，故您需要修改Python 文件来实现您的操作。   
 一般情况下，您通过编辑器打开.py 文件的头部即可看到您需要修改的变量。    
 
+理论上根据Python 的兼容性，在Windows、Linux 和 macOS 上都可以正常运行
+
 #### Windows 的部署方法：
 1.您的电脑需安装Python 3.6.6 或更新版本的Python[下载Python](https://python.org)   
 2.Clone项目main 分支或从 [*Release*](https://github.com/Xiaoxiaoyu1321/IPod_specific_format_conversion/releases) 下载  
 3.下载ffmpeg 并放置到 bin\\ffmpeg 文件夹 [下载 ffmpeg Windows的构建](https://www.gyan.dev/ffmpeg/builds/)     
 4.通过pip 安装依赖    
-```Python
+```Terminal
 # 一般情况：
-pip install frida
+>> pip install frida
 # 无法找到pip:
-python -m pip install frida
+>> python -m pip install frida
 ```
 5.通过Python 运行您需要使用的脚本。
 ```
-python mgg2mp4a.py
+python mgg2mp4.py
 ```
 
-### 注意事项：
-若要使用Basic 里面的脚本，请注意还要复制一份ffmpeg到Basic 文件夹的根目录下。  
-### 特别鸣谢：
+#### Linux & macOS 部署方法：   
+1. 检查python3 版本是否≥ 3.6.6   
+```
+>> python3 --version
+Python 3.11.2
+```
+2. 检查是否已安装pip   
+```
+>> python3 -m pip --version
+pip 23.0.1 from /usr/lib/python3/dist-packages/pip (python 3.11)
+```
+若未安装pip，请先安装pip，或在后面的过程中手动下载包并配置Python 环境    
+```Terminal
+>> sudo apt install python3-pip
+```
+3. 从Github 克隆仓库到本地或下载zip 文件并解压   
+4. 前往[ffmpeg 官网](https://ffmpeg.org/download.html)，下载ffmpeg 独立程序并放置在 bin\\ffmpeg 文件夹下   
+5. 通过pip 安装所需包：
+```Terminal
+# 一般情况：
+>> pip install frida
+# 无法找到pip:
+>> python3 -m pip install frida
+```
+6.执行所需的项目文件
+```Terminal
+>> python3 mgg2m4a.py
+```
+
+
+
+## 常见问题Q&A：
+**为什么使用Classic 里的脚本时，提示找不到ffmepg:**  
+若要使用Classic 里面的脚本，请注意还要复制一份ffmpeg到Basic 文件夹的根目录下。  
+**为什么我在运行脚本时提示缺少库**    
+每个脚本使用的库可能存在差异，若缺少某个库，请直接使用pip 安装行了。   
+
+## 特别鸣谢：
 [decrypt-mflac-frida项目](https://github.com/yllhwa/decrypt-mflac-frida)  
 
