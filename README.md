@@ -19,8 +19,8 @@
 
 #### Basic 目录
 **flac2m4a：** 提供flac到 m4a 文件的直接转换（为了能够在iPod 上播放，高于1411Kbps 的音质将被压缩为1411Kbps）      
-**ogg2m4a_2.0：** 提供ogg到m4a 文件的直接转换 
-**ogg2mp3_2.0：** 提供ogg到mp3 文件的直接转换   
+**ogg2m4a_2.0：** 提供ogg到m4a 文件的直接转换     
+**ogg2mp3_2.0：** 提供ogg到mp3 文件的直接转换     
 **video2mp4_ipod：** 提供视频文件转换为iPod可播放的格式     
 **wav2m4a：** 提供wav文件到 m4a 文件的转换    
 
