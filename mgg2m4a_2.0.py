@@ -7,12 +7,112 @@ import time
 import subprocess
 import json
 import os
-
+from mutagen.mp4 import MP4
+from mutagen.mp4 import MP4Cover
+from PIL import Image
+import requests
+import urllib.parse
+from urllib.parse import quote  
+####################################################################################################################################
 #!!!下面是你需要修改的东西!!!
 home = r"D:\Music\QQ_Music_Download\VipSongsDownload"#设置你的QQ 音乐下载目录
 m4a_output_dir = r'D:\Project\Progamming\IPod_specific_format_conversion\m4a_output' #设置你的m4a 保存目录
-Keep_temp = False #是否保留缓存ogg
 
+Keep_temp = False #是否保留缓存ogg
+Keep_temp_pic = False #是否保留缓存专辑图
+
+Down_pic = True
+
+
+
+
+###################################################################################################################################
+
+#调试设置
+pic_down_dir = r".\temp_pic"
+
+
+
+
+
+#定义下载专辑图的部分
+def get_qqmusic_album_pic(song_name, artist_name):  
+    """  
+    从QQ音乐获取歌曲的专辑封面图片URL。  
+    """  
+    try:  
+        query = f"{song_name} {artist_name}"  
+        encoded_query = quote(query)  
+        search_url = f"https://c.y.qq.com/soso/fcgi-bin/client_search_cp?w={encoded_query}&format=json"  
+        headers = {  
+            "Referer": "https://y.qq.com/portal/player.html"  
+        }  
+        response = requests.get(search_url, headers=headers)  
+        response.raise_for_status()  
+        data = response.json()  
+          
+        if not data['data']['song']['list']:  
+            print(f"No search results for: {song_name} by {artist_name}")  
+            return None  
+          
+        song_info = data['data']['song']['list'][0]  
+        album_url = song_info['albummid']  
+        album_pic_url = f"https://y.qq.com/music/photo_new/T002R300x300M000{album_url}.jpg"  
+          
+        return album_pic_url  
+    except requests.RequestException as e:  
+        print(f"Request error: {e}")  
+        return None  
+    except KeyError as e:  
+        print(f"Data extraction error: {e}")  
+        return None  
+  
+def download_album_pic(album_pic_url, song_name,art_name):  
+    """  
+    下载专辑封面图片。  
+    """  
+
+    output_dir = pic_down_dir
+    try:  
+        # 确保输出目录存在  
+        os.makedirs(output_dir, exist_ok=True)  
+          
+        # 下载专辑图  
+        global pic_name
+        pic_name = f"{song_name} - {art_name}.jpg"
+        
+        album_pic_file = os.path.join(output_dir, pic_name)  
+        img_data = requests.get(album_pic_url).content  
+        with open(album_pic_file, "wb") as f:  
+            f.write(img_data)  
+  
+        return album_pic_file  
+    except Exception as e:  
+        print(f"Error downloading album picture: {e}")  
+        return None  
+
+#把图片嵌入到文件
+def fuck_pic_to_m4a(song_file,pic_file):
+    print('[Log][Pic2m4a]Song_File:',song_file)
+    print('[Log][Pic2m4a]Pic_File:',pic_file)
+    audio = MP4(song_file)# 打开 M4A 文件
+    try:
+        # 读取图片文件
+        with open(os.path.join(pic_down_dir, pic_file), 'rb') as img_file:
+            img_data = img_file.read()
+        # 创建 MP4Cover 对象
+        cover = MP4Cover(img_data, imageformat=MP4Cover.FORMAT_JPEG)
+        # 添加专辑封面到 M4A 文件
+        audio.tags['covr'] = [cover]
+        
+        # 保存修改
+        audio.save()
+    except:
+        pass    
+    
+
+
+#初始化破解进程
 def init_QD():
 
 
@@ -83,8 +183,12 @@ def init_QD():
 def del_temp(file):
     if Keep_temp == False:
         os.remove(file)
-        
-
+def del_temp_pic(file):       
+    try:
+        if Keep_temp_pic == False:
+            os.remove(file)
+    except:
+        pass
 
 
 
@@ -121,7 +225,7 @@ def ogg2m4a():
 
         # 提取元数据标签
         tags = metadata_json.get('streams', [{}])[0].get('tags', {})
-
+        print('[Info]Tags:',tags)
         # 创建元数据文件
         metadata_file = 'metadata.txt'
         with open(metadata_file, 'w', encoding='utf-8') as f:
@@ -145,8 +249,30 @@ def ogg2m4a():
         ]
         subprocess.run(ffmpeg_command)
 
+
+
+        
+        #下载专辑图
+        if Down_pic:
+            album_pic_url = get_qqmusic_album_pic(tags['TITLE'], tags['ARTIST']) 
+            if album_pic_url:  
+                downloaded_file = download_album_pic(album_pic_url, tags['TITLE'],tags['ARTIST'])  
+                if downloaded_file:  
+                    print(f"[Info]picture downloaded to: {downloaded_file}")
+            fuck_pic_to_m4a(output_file,pic_name)
+            print('[Info]Output_file:',output_file)
+            print('[Info]Pic_file:',pic_name)
+
+
+
+
+
+
+
+
         # 删除临时元数据文件
         os.remove(metadata_file)
+        del_temp_pic(os.path.join(pic_down_dir, pic_name))
 
     # 遍历输入目录中的所有文件
     total_file = 0
@@ -167,6 +293,7 @@ def ogg2m4a():
             convert_ogg_to_alac(source_file_path, output_file_path)
             print(f"[Info][",now_file,r'/',total_file,"]Converted {file_name} to {output_file_name}")
             del_temp(source_file_path)
+            
 
     print("[Info]All OGG files have been converted.")
 

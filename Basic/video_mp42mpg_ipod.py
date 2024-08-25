@@ -7,7 +7,8 @@ import sys
 #input_dir = r'D:\Music\ilem - 2：3 (2019) [FLAC]\ilem - 2：3\ilem & 洛天依 & 言和 & 乐正龙牙 - 2比3 (2019) [CD2] [FLAC][IFPI-LQ220]'
 #input_dir = r'C:\Users\Xiaoxiaoyu\Desktop\妄想症系列'
 #input_dir = r'D:\Downloads\Videos\Vsinger Live 2017洛天依全息演唱会【官方录播完整版】'
-input_dir = r'E:\DownKyi-1.6.1\Media\从0开始学编曲'
+#input_dir = r'E:\DownKyi-1.6.1\Media\从0开始学编曲'
+input_dir = r'D:\Videos&Movies\Live\Vsinger Live 2020'
 #正则匹配
 input_wow = r'[*.]mp4'
 #输入格式
