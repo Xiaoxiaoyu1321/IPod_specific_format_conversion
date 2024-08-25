@@ -6,7 +6,7 @@ import sys
 #input_dir = r'D:\Music\洛天依×乐正绫 - TUNO桐音 - 南北寻光 (Final Edition, A + B Side) (2015) [FLAC]\南北寻光B'
 #input_dir = r'D:\Music\ilem - 2：3 (2019) [FLAC]\ilem - 2：3\ilem & 洛天依 & 言和 & 乐正龙牙 - 2比3 (2019) [CD2] [FLAC][IFPI-LQ220]'
 #input_dir = r'C:\Users\Xiaoxiaoyu\Desktop\妄想症系列'
-input_dir = r'D:\Downloads\Videos\Vsinger Live 2017洛天依全息演唱会【官方录播完整版】'
+input_dir = r'D:\Videos&Movies\Live\Taylor Swift - The Eras Tour 2023'
 #正则匹配
 input_wow = r'[*.]mp4'
 #输入格式
@@ -67,7 +67,12 @@ for i in match_filename:
     #nmsl_a = ''
     #for nmsl in cmd:
     #    nmsl_a = nmsl_a + nmsl + " "
-    nmsl_a = r"ffmpeg -y -i "+now_full_input_filename + r" -c:a aac -b:a 160k -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p -r 30 -crf 23 -b:v 1500k -s 640x480 -movflags +faststart " + now_full_output_filename
+
+
+    #使用CPU
+    #nmsl_a = r"ffmpeg -y -i "+now_full_input_filename + r" -c:a aac -b:a 160k -c:v libx264 -profile:v baseline -level 3.0 -pix_fmt yuv420p -r 30 -crf 23 -b:v 1500k -s 640x480 -movflags +faststart " + now_full_output_filename
+    #使用NVIDIA GPU H264_NVENC 加速
+    nmsl_a = r"ffmpeg -y -i "+now_full_input_filename + " -vf "+'"'+r"scale=320:240:force_original_aspect_ratio=decrease,pad=320:240:(ow-iw)/2:(oh-ih)/2"+'"'+ r" -c:a aac -b:a 160k -c:v h264_nvenc -profile:v baseline -level 3.0 -pix_fmt yuv420p -r 30 -crf 23 -b:v 1500k -s 640x480 -movflags +faststart " + now_full_output_filename
     print(nmsl_a)
 
     print(run_shell(nmsl_a))
