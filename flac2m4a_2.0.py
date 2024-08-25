@@ -190,7 +190,7 @@ def con_m4a(file):
         ]
     else:
         cmd = [
-            ffmpeg_dir,
+            ffmpeg_dir,'-n',
             '-i',get_wav_dir(file),
             '-vn',
             '-acodec','alac',
