@@ -38,7 +38,13 @@
 
 理论上根据Python 的兼容性，在Windows、Linux 和 macOS 上都可以正常运行
 
-#### Windows 的部署方法：
+### Windows 的部署方法：
+
+#### 使用编译的exe（推荐）     
+1.前往[``Release页面``](https://github.com/Xiaoxiaoyu1321/IPod_specific_format_conversion/releases)下载最新的exe Release 版本。    
+2.直接运行该程序
+    
+#### 手动执行修改和执行Python 文件（备用）    
 1.您的电脑需安装Python 3.6.6 或更新版本的Python[下载Python](https://python.org)   
 2.Clone项目main 分支或从 [*Release*](https://github.com/Xiaoxiaoyu1321/IPod_specific_format_conversion/releases) 下载  
 3.下载ffmpeg 并放置到 bin\\ffmpeg 文件夹 [下载 ffmpeg Windows的构建](https://www.gyan.dev/ffmpeg/builds/)     
@@ -89,7 +95,7 @@ def run_shell(shell):
 python flac2m4a_2.0.py
 ```
 
-#### Linux & macOS 部署方法：   
+### Linux & macOS 部署方法：   
 1. 检查python3 版本是否≥ 3.6.6   
 ```
 >> python3 --version
