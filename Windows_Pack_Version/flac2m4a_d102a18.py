@@ -10,6 +10,14 @@ from mutagen.mp4 import MP4
 from mutagen.mp4 import MP4Cover
 from PIL import Image
 
+
+print('此软件开发By Xiaoxiaoyu1321。此软件通过Apache-2.0 协议开源。')
+print('Github项目地址：https://github.com/Xiaoxiaoyu1321/IPod_specific_format_conversion')
+print('开发者哔哩哔哩主页：https://space.bilibili.com/531456803')
+
+
+
+
 ############################################3
 #！！！以下是你需要修改的内容！！！
 #输入路径
