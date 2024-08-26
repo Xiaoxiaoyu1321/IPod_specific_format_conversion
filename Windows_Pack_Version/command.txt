@@ -1,0 +1,1 @@
+PS D:\Project\Progamming\IPod_specific_format_conversion\Windows_Pack_Version> pyinstaller -i logo.ico --onefile --add-data "bin/*;./data" .\flac2m4a_d102a18.py
