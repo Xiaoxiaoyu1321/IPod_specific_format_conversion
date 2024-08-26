@@ -137,7 +137,7 @@ def take_Pic(file):
     ]'''
 
     cmd = [
-        ffmpeg_dir,
+        ffmpeg_dir,'-y',
         '-i', file,
         '-an',
         '-vcodec', 'copy',
@@ -161,7 +161,7 @@ def con_wav(file):
     print('[Info]正在转换',file_name,'到wav')
     wav_dir = get_wav_dir(file)
     cmd=[
-        ffmpeg_dir,
+        ffmpeg_dir,'-y',
         '-i',file,
         '-vn',
         '-acodec','pcm_s16le',
@@ -223,9 +223,15 @@ def fuck_pic_m4a(file):
         
 def clean(file):
     if pic_temp_keep == False:
-        os.remove(get_pic_dir(file))
+        try:
+            os.remove(get_pic_dir(file))
+        except Exception as q:
+            print('[Error]',q)
     if song_temp_keep == False:
-        os.remove(get_wav_dir(file))
+        try:
+            os.remove(get_wav_dir(file))
+        except Exception as q:
+            print('[Error]',q)
 
 
 #开始
@@ -247,4 +253,4 @@ for i in all_file:
         print('[Info]嵌入专辑图失败')
     clean(i)
 
-print('[Info]所有文件转换完毕')
+print('[Info]所有文件转换完毕，共转换',len_allfile,'个文件')

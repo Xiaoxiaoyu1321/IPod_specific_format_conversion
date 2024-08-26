@@ -44,14 +44,49 @@
 3.下载ffmpeg 并放置到 bin\\ffmpeg 文件夹 [下载 ffmpeg Windows的构建](https://www.gyan.dev/ffmpeg/builds/)     
 4.通过pip 安装依赖    
 ```Terminal
-# 一般情况：
+# 自动安装
+>> pip install -r requirements.txt
+# 手动安装
 >> pip install frida
-# 无法找到pip:
->> python -m pip install frida
+>> pip install ....
 ```
-5.通过Python 运行您需要使用的脚本。
+5.通过编辑器如``notepad``或``notepad++`` 等工具打开您需要使用的脚本，如``flac2m4a_2.0.py``      
+     
+在这里，您可以注意到开头存在一些您需要修改的部分
+```python
+……
+
+############################################3
+#！！！以下是你需要修改的内容！！！
+#输入路径
+input_dir = r'D:\Music\CloudMusic' 
+
+#输出路径
+output_dir = r'D:\TEMP\nms'
+
+#是否保存缓存
+song_temp_keep=False #歌曲缓存保存
+pic_temp_keep=False #专辑图缓存保存
+
+
+
+############################################
+#高级配置：
+pic_temp_dir = os.getcwd()+  r"\temp\pic"
+song_temp_dir =os.getcwd()+ r'\temp\wav'
+ffmpeg_dir = r'.\bin\ffmpeg\ffmpeg.exe'
+
+#############################################
+
+#定义运行Shell 方法
+def run_shell(shell):
+……
 ```
-python mgg2mp4.py
+将上面的``input_dir``和``output_dir``更改为您的路径，然后保存文件。
+
+6.通过Python 运行您需要使用的脚本。
+```
+python flac2m4a_2.0.py
 ```
 
 #### Linux & macOS 部署方法：   
@@ -73,14 +108,48 @@ pip 23.0.1 from /usr/lib/python3/dist-packages/pip (python 3.11)
 4. 前往[ffmpeg 官网](https://ffmpeg.org/download.html)，下载ffmpeg 独立程序并放置在 bin\\ffmpeg 文件夹下   
 5. 通过pip 安装所需包：
 ```Terminal
-# 一般情况：
+# 自动安装
+>> pip install -r requirements.txt
+# 手动安装
 >> pip install frida
-# 无法找到pip:
->> python3 -m pip install frida
+>> pip install ....
 ```
-6.执行所需的项目文件
+
+6.通过编辑器如``vim``或``nano``打开您需要使用的脚本，如``flac2m4a_2.0.py``。    
+在这里，您可以注意到开头存在一些您需要修改的部分
+```python
+……
+
+############################################3
+#！！！以下是你需要修改的内容！！！
+#输入路径
+input_dir = r'D:\Music\CloudMusic' 
+
+#输出路径
+output_dir = r'D:\TEMP\nms'
+
+#是否保存缓存
+song_temp_keep=False #歌曲缓存保存
+pic_temp_keep=False #专辑图缓存保存
+
+
+
+############################################
+#高级配置：
+pic_temp_dir = os.getcwd()+  r"\temp\pic"
+song_temp_dir =os.getcwd()+ r'\temp\wav'
+ffmpeg_dir = r'.\bin\ffmpeg\ffmpeg.exe'
+
+#############################################
+
+#定义运行Shell 方法
+def run_shell(shell):
+……
+```
+将上面的``input_dir``和``output_dir``更改为您的路径，然后保存文件。
+7.执行所需的项目文件
 ```Terminal
->> python3 mgg2m4a.py
+>> python3 flac2m4a_2.0.py
 ```
 
 
