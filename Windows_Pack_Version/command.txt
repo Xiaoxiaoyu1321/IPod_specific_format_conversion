@@ -1,1 +1,1 @@
-pyinstaller -i logo.ico --onefile --add-data "bin/*;./bin" .\flac2m4a_4cc2d4b.py
+pyinstaller -i logo.ico --onefile --add-data "bin/*;./bin" .\flac2m4a_1b0d892.py
