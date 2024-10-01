@@ -112,7 +112,7 @@ def download_file(url, filename):
     :param url: 文件的URL地址  
     :param filename: 保存文件的名称  
     """  
-    response = requests.get(url, stream=True)  # 开启stream模式  
+    response = requests.get(url, stream=True,verify=False)  # 开启stream模式  
     response.raise_for_status()  # 如果请求返回失败的HTTP状态码，抛出HTTPError异常  
   
     # 文件总大小  
