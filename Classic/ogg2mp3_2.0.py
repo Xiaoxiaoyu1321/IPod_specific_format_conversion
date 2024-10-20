@@ -3,8 +3,8 @@ import json
 import os
 
 # 定义输入和输出目录
-input_dir = r'D:\TEMP\decrypt-mflac-frida-main\output'  # 替换为你的输入目录路径
-output_dir = r'D:\TEMP\nms\ogg2mp3'  # 替换为你的输出目录路径
+input_dir = r'D:\Music\QQ_Music_Unlocked'  # 替换为你的输入目录路径
+output_dir = r'D:\Music\QQ_Music_Unlocked_mp3'  # 替换为你的输出目录路径
 
 # 确保输出目录存在
 os.makedirs(output_dir, exist_ok=True)
@@ -13,7 +13,7 @@ os.makedirs(output_dir, exist_ok=True)
 def convert_ogg_to_mp3(source_file, output_file):
     # 使用ffprobe提取源文件的元数据
     ffprobe_command = [
-        "ffprobe",
+        "./bin/ffmpeg/ffprobe",
         "-v", "quiet",
         "-print_format", "json",
         "-show_format",
@@ -43,7 +43,7 @@ def convert_ogg_to_mp3(source_file, output_file):
 
     # 使用ffmpeg将OGG文件转换为MP3格式并应用元数据
     ffmpeg_command = [
-        "ffmpeg",
+        "./bin/ffmpeg/ffmpeg",
         "-y",  # 自动确认覆盖输出文件
         "-analyzeduration", "2147483647",
         "-probesize", "2147483647",

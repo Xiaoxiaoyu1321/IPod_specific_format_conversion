@@ -1,0 +1,1 @@
+pyinstaller -i logo.ico --onefile --add-data "bin/decrypt-qm/*;./bin/decrypt-qm" --add-data "bin/ffmpeg/*;./bin/ffmpeg" .\mflac2m4a_3.0.py
