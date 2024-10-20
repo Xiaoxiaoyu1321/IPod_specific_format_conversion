@@ -1,0 +1,4 @@
+;FFMETADATA1
+title=秒针
+album=秒针
+artist=李克勤

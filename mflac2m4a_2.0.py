@@ -15,8 +15,8 @@ import urllib.parse
 from urllib.parse import quote  
 ####################################################################################################################################
 #!!!下面是你需要修改的东西!!!
-home = r"D:\Project\Progamming\IPod_specific_format_conversion\temp\111"#设置你的QQ 音乐下载目录
-m4a_output_dir = r'D:\TEMP\454545\NMSL' #设置你的m4a 保存目录
+home = r"D:\Music\2024年10月7日"#设置你的QQ 音乐下载目录
+m4a_output_dir = r'D:\Music\2024年10月7日_Output' #设置你的m4a 保存目录
 
 Keep_temp = True #是否保留缓存ogg
 Keep_temp_pic = False #是否保留缓存专辑图
