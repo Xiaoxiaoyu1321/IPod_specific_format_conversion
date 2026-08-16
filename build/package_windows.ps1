@@ -8,7 +8,7 @@
     3. 用 PyInstaller 打包为单文件 exe：
         - 内置 ffmpeg/ffprobe（运行时自动解压，无需用户单独安装）
         - 内置 Frida 解密脚本 bin/decrypt-qm/hook_qq_music.js
-        - 图标使用 Windows_Pack_Version/logo.ico
+        - 图标使用 legacy/windows_pack/logo.ico
 
     本地 Windows 上运行（PowerShell）：
         powershell -ExecutionPolicy Bypass -File build/package_windows.ps1
@@ -71,7 +71,7 @@ Copy-Item "$($src.FullName)\bin\ffprobe.exe" (Join-Path $binDir "ffprobe.exe") -
 Write-Host "[3/4] PyInstaller 打包 ($BuildMode)"
 $modeArg = if ($BuildMode -eq "onedir") { "--onedir" } else { "--onefile" }
 & $Py -m PyInstaller --noconfirm --clean $modeArg --windowed --name IPodConverter `
-    --icon "Windows_Pack_Version\logo.ico" `
+    --icon "legacy\windows_pack\logo.ico" `
     --collect-all frida --collect-all qfluentwidgets --collect-all qframelesswindow `
     --hidden-import frida --hidden-import mutagen --hidden-import py7zr `
     --add-data "bin/decrypt-qm/hook_qq_music.js;bin/decrypt-qm" `

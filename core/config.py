@@ -61,6 +61,10 @@ class AppConfig:
         # 兜底校验
         if not isinstance(cfg.kinds, list) or not cfg.kinds:
             cfg.kinds = list(DEFAULT_KINDS)
+        else:
+            # 过滤掉已不存在的转换类型，避免启动报错
+            valid = {k.value for k in FormatKind}
+            cfg.kinds = [k for k in cfg.kinds if k in valid] or list(DEFAULT_KINDS)
         cfg.threads = max(1, int(cfg.threads or 1))
         return cfg
 

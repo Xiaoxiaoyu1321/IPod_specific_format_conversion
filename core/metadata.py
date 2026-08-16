@@ -87,18 +87,79 @@ def extract_cover(ffmpeg: Path, src: Path, dest: Path,
     return dest.is_file() and dest.stat().st_size > 0
 
 
-def embed_cover(m4a: Path, cover: Path) -> bool:
-    """用 mutagen 把封面嵌入 M4A（covr 标签）。"""
-    try:
-        from mutagen.mp4 import MP4, MP4Cover
+def _image_mime(path: Path) -> str:
+    return ("image/png" if path.suffix.lower() == ".png" else "image/jpeg")
 
-        audio = MP4(str(m4a))
+
+def embed_cover(file: Path, cover: Path) -> bool:
+    """用 mutagen 把封面嵌入音频文件（M4A covr / MP3 APIC / FLAC pictures）。"""
+    try:
         with open(cover, "rb") as fh:
             data = fh.read()
-        fmt = (MP4Cover.FORMAT_PNG if cover.suffix.lower() == ".png"
-               else MP4Cover.FORMAT_JPEG)
-        audio.tags["covr"] = [MP4Cover(data, imageformat=fmt)]
-        audio.save()
+        suffix = file.suffix.lower()
+        if suffix == ".m4a":
+            from mutagen.mp4 import MP4, MP4Cover
+
+            audio = MP4(str(file))
+            fmt = (MP4Cover.FORMAT_PNG if cover.suffix.lower() == ".png"
+                   else MP4Cover.FORMAT_JPEG)
+            audio.tags["covr"] = [MP4Cover(data, imageformat=fmt)]
+            audio.save()
+        elif suffix == ".mp3":
+            from mutagen.id3 import APIC, ID3, ID3NoHeaderError
+
+            try:
+                audio = ID3(str(file))
+            except ID3NoHeaderError:
+                audio = ID3()
+            audio.add(APIC(encoding=3, mime=_image_mime(cover), type=3,
+                           desc="Cover", data=data))
+            audio.save(str(file))
+        elif suffix == ".flac":
+            from mutagen.flac import FLAC, Picture
+
+            picture = Picture()
+            picture.type = 3
+            picture.mime = _image_mime(cover)
+            picture.data = data
+            audio = FLAC(str(file))
+            audio.clear_pictures()
+            audio.add_picture(picture)
+            audio.save()
+        else:
+            return False
         return True
     except Exception:  # noqa: BLE001 —— 封面嵌入失败不应中断转换
+        return False
+
+
+def embed_lyrics(file: Path, text: str) -> bool:
+    """把歌词文本嵌入音频文件（M4A ©lyr / MP3 USLT / FLAC LYRICS 注释）。"""
+    try:
+        suffix = file.suffix.lower()
+        if suffix == ".m4a":
+            from mutagen.mp4 import MP4
+
+            audio = MP4(str(file))
+            audio.tags["©lyr"] = [text]
+            audio.save()
+        elif suffix == ".mp3":
+            from mutagen.id3 import ID3, ID3NoHeaderError, USLT
+
+            try:
+                audio = ID3(str(file))
+            except ID3NoHeaderError:
+                audio = ID3()
+            audio.add(USLT(encoding=3, lang="zho", desc="", text=text))
+            audio.save(str(file))
+        elif suffix == ".flac":
+            from mutagen.flac import FLAC
+
+            audio = FLAC(str(file))
+            audio["LYRICS"] = text
+            audio.save()
+        else:
+            return False
+        return True
+    except Exception:  # noqa: BLE001 —— 歌词嵌入失败不应中断转换
         return False

@@ -33,7 +33,11 @@ class FormatKind(str, Enum):
     OGG2MP3 = "ogg2mp3"
     WAV2M4A = "wav2m4a"
     MGG2M4A = "mgg2m4a"
+    MGG2FLAC = "mgg2flac"
+    MGG2MP3 = "mgg2mp3"
     MFLAC2M4A = "mflac2m4a"
+    MFLAC2FLAC = "mflac2flac"
+    MFLAC2MP3 = "mflac2mp3"
     VIDEO2MP4 = "video2mp4"
     VIDEO2MPG = "video2mpg"
 
@@ -54,6 +58,7 @@ class FormatSpec:
     label: str          # 界面/日志中展示的名称
     is_video: bool = False
     needs_decrypt: bool = False  # 是否需先经 QQ 音乐进程解密
+    decrypted_ext: str = ""      # 解密后的中间文件后缀（如 ".ogg"/".flac"）
 
 
 FORMAT_SPECS: dict[FormatKind, FormatSpec] = {
@@ -70,10 +75,28 @@ FORMAT_SPECS: dict[FormatKind, FormatSpec] = {
         (".wav",), ".m4a", "WAV → M4A（ALAC 无损）"
     ),
     FormatKind.MGG2M4A: FormatSpec(
-        (".mgg",), ".m4a", "QQ音乐 MGG → M4A", needs_decrypt=True
+        (".mgg",), ".m4a", "QQ音乐 MGG → M4A",
+        needs_decrypt=True, decrypted_ext=".ogg",
+    ),
+    FormatKind.MGG2FLAC: FormatSpec(
+        (".mgg",), ".flac", "QQ音乐 MGG → FLAC",
+        needs_decrypt=True, decrypted_ext=".ogg",
+    ),
+    FormatKind.MGG2MP3: FormatSpec(
+        (".mgg",), ".mp3", "QQ音乐 MGG → MP3",
+        needs_decrypt=True, decrypted_ext=".ogg",
     ),
     FormatKind.MFLAC2M4A: FormatSpec(
-        (".mflac",), ".m4a", "QQ音乐 MFLAC → M4A", needs_decrypt=True
+        (".mflac",), ".m4a", "QQ音乐 MFLAC → M4A",
+        needs_decrypt=True, decrypted_ext=".flac",
+    ),
+    FormatKind.MFLAC2FLAC: FormatSpec(
+        (".mflac",), ".flac", "QQ音乐 MFLAC → FLAC",
+        needs_decrypt=True, decrypted_ext=".flac",
+    ),
+    FormatKind.MFLAC2MP3: FormatSpec(
+        (".mflac",), ".mp3", "QQ音乐 MFLAC → MP3",
+        needs_decrypt=True, decrypted_ext=".flac",
     ),
     FormatKind.VIDEO2MP4: FormatSpec(
         VIDEO_SOURCE_EXTS, ".mp4", "视频 → iPod 兼容 MP4", is_video=True

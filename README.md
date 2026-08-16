@@ -22,11 +22,14 @@
 | OGG → M4A | 同上 |
 | WAV → M4A | 同上 |
 | OGG → MP3 | libmp3lame 编码 |
-| MGG → M4A | QQ 音乐加密格式，经进程解密后转 ALAC，联网补封面 |
-| MFLAC → M4A | 同上 |
+| MGG → M4A / FLAC / MP3 | QQ 音乐加密格式，经进程解密后分别转 ALAC / FLAC / MP3 |
+| MFLAC → M4A / FLAC / MP3 | 同上（MFLAC→FLAC 为整文件复制） |
 | 视频 → MP4 | H.264 baseline + AAC，iPod 兼容规格（320x240） |
 | 视频 → MPG | mpeg2video + mp3 |
-| 歌词 | （可选）自动下载 .lrc 歌词 |
+| 封面 | （可选）所有音频转换均支持：源文件提取封面，失败则联网搜索 QQ 音乐封面并嵌入（M4A covr / MP3 APIC / FLAC pictures） |
+| 歌词 | （可选）所有音频转换均支持：下载 .lrc 并嵌入标签（M4A ©lyr / MP3 USLT / FLAC LYRICS） |
+
+> 勾选多个目标格式时，一个 QQ 音乐加密文件解密一次，即可同时产出 M4A/FLAC/MP3。
 
 ## 架构
 
@@ -165,10 +168,18 @@ powershell -ExecutionPolicy Bypass -File build/package_windows.ps1
 
 ## 目录说明
 
-- `Classic/` 旧版单文件脚本（无 GUI，需手改路径），保留供参考
-- `bin/decrypt-qm/` Frida 解密脚本（hook_qq_music.js / hook_qq_music.py）
-- `Windows_Pack_Version/` 旧版 Windows 打包产物
-- 仓库根目录下的旧脚本（`mgg2m4a.py`、`flac2m4a_2.0.py` 等）为重构前的整合脚本，新功能以 `core/` + `gui/` 为准
+```
+bin/decrypt-qm/   Frida 解密脚本（hook_qq_music.js 为核心，hook_qq_music.py 为旧独立调用示例）
+build/            Windows 打包脚本（package_windows.ps1）
+core/             核心逻辑层（引擎/转换/解密/元数据/封面/歌词/ffmpeg 定位/配置/模型）
+gui/              客户端层（PyQt5 + qfluentwidgets：转换/任务/设置三页）
+legacy/           重构前的旧版脚本归档（classic / scripts / samples / windows_pack），仅供存档
+tests/            单元与端到端测试
+main.py           GUI 入口
+main_cli.py       无 GUI 命令行入口
+```
+
+> `Legacy` 分支与 `legacy/` 目录都保留了重构前的旧代码；新功能一律以 `core/` + `gui/` 为准。
 
 ## 常见问题
 

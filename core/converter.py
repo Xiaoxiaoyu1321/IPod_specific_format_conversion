@@ -133,6 +133,42 @@ class Converter:
             duration=duration, progress_cb=progress_cb, should_stop=should_stop,
         )
 
+    def to_flac(self, src: Path, out: Path, tags: Optional[Dict[str, str]] = None,
+                duration: Optional[float] = None,
+                progress_cb: Optional[Callable[[float], None]] = None,
+                should_stop: Optional[Callable[[], bool]] = None) -> None:
+        """转 FLAC（无损，保留源采样率/位深）。"""
+        self.run(
+            [*_PROBE_ARGS, "-i", str(src), "-vn", "-acodec", "flac",
+             *self._metadata_args(tags), str(out)],
+            duration=duration, progress_cb=progress_cb, should_stop=should_stop,
+        )
+
+    def copy_file(self, src: Path, out: Path,
+                  progress_cb: Optional[Callable[[float], None]] = None,
+                  should_stop: Optional[Callable[[], bool]] = None) -> None:
+        """整文件复制（源与目标同格式时使用，如 mflac 解密产物→flac）。"""
+        if should_stop and should_stop():
+            raise ConversionError("任务已取消")
+        total = src.stat().st_size
+        out.parent.mkdir(parents=True, exist_ok=True)
+        done = 0
+        with open(src, "rb") as fsrc, open(out, "wb") as fdst:
+            while True:
+                if should_stop and should_stop():
+                    fdst.close()
+                    out.unlink(missing_ok=True)
+                    raise ConversionError("任务已取消")
+                chunk = fsrc.read(1024 * 1024)
+                if not chunk:
+                    break
+                fdst.write(chunk)
+                done += len(chunk)
+                if progress_cb and total:
+                    progress_cb(min(100.0, done * 100.0 / total))
+        if progress_cb:
+            progress_cb(100.0)
+
     # ---- 视频转换 ----
     def to_video_mp4(self, src: Path, out: Path, duration: Optional[float] = None,
                      progress_cb: Optional[Callable[[float], None]] = None,
