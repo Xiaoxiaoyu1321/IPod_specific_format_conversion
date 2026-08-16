@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 运行时产物
+config.json
+temp/
+bin/ffmpeg/
+
+# 系统
+.DS_Store
+Thumbs.db
