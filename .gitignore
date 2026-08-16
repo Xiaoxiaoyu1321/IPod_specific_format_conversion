@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# PyInstaller
+dist/
+*.spec
+.pyinstaller_cache/
+
+# 构建产物（build/ 下仅保留打包脚本本身）
+build/*
+!build/package_windows.ps1
+
+# 运行时产物
+config.json
+temp/
+bin/ffmpeg/
+
+# 系统
+.DS_Store
+Thumbs.db

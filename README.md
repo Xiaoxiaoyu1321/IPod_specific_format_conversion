@@ -1,202 +1,187 @@
 # iPod_Specific_Format_Conversion
-一个可以用来将各种文件格式转换为适用于iPod的脚本集    
 
-## 重要声明：
-- 本工具仅用于技术研究和已合法获得音频文件的格式转换
-- 不得用于盗版或商业用途
-- 转换工具与任何企业无任何关联
-- 开发者不承担因滥用本工具导致的法律责任
-- 本软件集成的mgg/mflac转换工具来自第三方开源项目 [decrypt-mflac-frida项目](https://github.com/yllhwa/decrypt-mflac-frida)  ，该工具版权归其原始开发者所有。       
-mgg/mflac是腾讯QQ音乐的专有加密音频格式，相关解密技术实现基于社区逆向工程成果。QQ音乐™是腾讯公司的注册商标。         
-- 本软件包含的mgg/mflac转换模块**仅为学习交流使用**。本软件**仅为学习交流使用**，使用本软件进行的任何操作（包括但不限于文件转换、格式处理等）均属**用户自主行为**，用户应自行审查操作内容的合法性并承担全部责任。开发者不承担任何形式的责任（包括但不限于直接责任、间接责任、连带责任、结果性责任、特殊责任）。      
-- 所有转换操作均发生在**用户本地设备**。仅允许转换用户**合法拥有版权**的本地文件。    
-- 禁止用于任何形式的商业用途(包括但不限于销售/直播/广告)。     
-- 请遵守《信息网络传播权保护条例》。    
-- 软件以及相关文件必须在24小时内删除。    
-## 实现的基本功能   
-- [x] mgg -> m4a
-- [x] flac -> m4a (1411Kbps)
-- [x] ogg -> m4a
-- [x] mp4 (适用于iPod 的规格)
-- [x] wav -> m4a
-- [x] mflac -> m4a
-- [x] mgg -> m4a
-## 文件说明：   
+一个可以将各种文件格式转换为适用于 **iPod** 播放格式（ALAC 无损 M4A / H.264 MP4 等）的脚本集。
 
-#### 仓库根目录
-**mgg2m4a：** 提供mgg 到 m4a 文件的直接转换   
-**mgg2m4a_2.0：** 在保留mgg 到 m4a 文件的转换同时，将歌曲封面并嵌入到m4a文件内    
-**mflac2m4a：** 提供mflac到m4a文件的直接转换    
-**mflac2m4a_3.0:** 提供mflac 到 m4a 文件的转换，与旧版本不同的是，还会将专辑图并嵌入到m4a中，提供防爆音支持
-**flac2m4a_2.0.py:** 提供flac到m4a 的转换，与旧版本不同的是，此版本增加了专辑图支持   
+> 本分支（`Next`）对项目进行了重构：将原有脚本逻辑封装为 **core（核心）+ GUI 客户端（PyQt5 / qfluentwidgets）** 两层架构，并附带无 GUI 的命令行入口，结构上类似 Clash（core 独立运行，客户端负责展示与控制）。
 
-** 注意，mflac 
-#### Classic 目录
-**flac2m4a：** 提供flac到 m4a 文件的直接转换（为了能够在iPod 上播放，高于1411Kbps 的音质将被压缩为1411Kbps）      
-**ogg2m4a_2.0：** 提供ogg到m4a 文件的直接转换     
-**ogg2mp3_2.0：** 提供ogg到mp3 文件的直接转换     
-**video2mp4_ipod：** 提供视频文件转换为iPod可播放的格式     
-**wav2m4a：** 提供wav文件到 m4a 文件的转换    
+## 重要声明
 
-##### 附录：文件夹命名定义：  
-在仓库根目录下的基本为整合类型，比如 *mgg2m4a*  可以协助您直接从mgg 文件转换到 m4a 文件。   
-在Classic 目录下的文件，为基本转换文件，在这里您可以手动选择各个文件的转换。
+- 本工具仅用于技术研究和**已合法获得**音频文件的格式转换
+- 不得用于盗版或商业用途；所有转换操作均发生在**用户本地设备**
+- 仅允许转换用户**合法拥有版权**的本地文件
+- mgg/mflac 是腾讯 QQ 音乐的专有加密音频格式，相关解密技术基于社区逆向工程成果
+- 本软件集成的 mgg/mflac 解密工具来自第三方开源项目 [decrypt-mflac-frida](https://github.com/yllhwa/decrypt-mflac-frida)，版权归其原始开发者所有，**仅为学习交流使用**
+- 使用本软件进行的任何操作均属**用户自主行为**，用户应自行审查操作内容的合法性并承担全部责任；开发者不承担任何形式的责任
+- 软件以及相关文件必须在 24 小时内删除
 
+## 支持的功能
 
+| 转换类型 | 说明 |
+| --- | --- |
+| FLAC → M4A | 转为 ALAC 无损（高于 1411Kbps 的压缩为 1411Kbps），自动提取/下载封面 |
+| OGG → M4A | 同上 |
+| WAV → M4A | 同上 |
+| OGG → MP3 | libmp3lame 编码 |
+| MGG → M4A | QQ 音乐加密格式，经进程解密后转 ALAC，联网补封面 |
+| MFLAC → M4A | 同上 |
+| 视频 → MP4 | H.264 baseline + AAC，iPod 兼容规格（320x240） |
+| 视频 → MPG | mpeg2video + mp3 |
+| 歌词 | （可选）自动下载 .lrc 歌词 |
 
+## 架构
 
-
-## 使用方法：  
-由于本项目正在计划实现GUI界面，故您需要修改Python 文件来实现您的操作。   
-一般情况下，您通过编辑器打开.py 文件的头部即可看到您需要修改的变量。    
-
-理论上根据Python 的兼容性，在Windows、Linux 和 macOS 上都可以正常运行
-
-### Windows 的部署方法：
-
-#### 使用编译的exe（推荐）     
-1.前往[``Release页面``](https://github.com/Xiaoxiaoyu1321/IPod_specific_format_conversion/releases)下载最新的exe Release 版本。    
-2.直接运行该程序
-    
-#### 手动执行修改和执行Python 文件（备用）    
-1.您的电脑需安装Python 3.6.6 或更新版本的Python[下载Python](https://python.org)   
-2.Clone项目main 分支或从 [*Release*](https://github.com/Xiaoxiaoyu1321/IPod_specific_format_conversion/releases) 下载  
-3.下载ffmpeg 并放置到 bin\\ffmpeg 文件夹 [下载 ffmpeg Windows的构建](https://www.gyan.dev/ffmpeg/builds/)     
-4.通过pip 安装依赖    
-```Terminal
-# 自动安装
->> pip install -r requirements.txt
-# 手动安装
->> pip install frida
->> pip install ....
 ```
-5.通过编辑器如``notepad``或``notepad++`` 等工具打开您需要使用的脚本，如``flac2m4a_2.0.py``      
-     
-在这里，您可以注意到开头存在一些您需要修改的部分
-```python
-……
-
-############################################3
-#！！！以下是你需要修改的内容！！！
-#输入路径
-input_dir = r'D:\Music\CloudMusic' 
-
-#输出路径
-output_dir = r'D:\TEMP\nms'
-
-#是否保存缓存
-song_temp_keep=False #歌曲缓存保存
-pic_temp_keep=False #专辑图缓存保存
-
-
-
-############################################
-#高级配置：
-pic_temp_dir = os.getcwd()+  r"\temp\pic"
-song_temp_dir =os.getcwd()+ r'\temp\wav'
-ffmpeg_dir = r'.\bin\ffmpeg\ffmpeg.exe'
-
-#############################################
-
-#定义运行Shell 方法
-def run_shell(shell):
-……
-```
-将上面的``input_dir``和``output_dir``更改为您的路径，然后保存文件。
-
-6.通过Python 运行您需要使用的脚本。
-```
-python flac2m4a_2.0.py
+┌─────────────────────────────────────────────────────────┐
+│  core/   核心层（纯 Python，无 GUI 依赖）                  │
+│    engine.py    转换引擎：任务发现 / 调度 / 进度回调        │
+│    converter.py ffmpeg 封装（进度解析、可中断）            │
+│    decrypt.py   QQ 音乐 Frida 解密                        │
+│    metadata.py  ffprobe 元数据、封面提取/嵌入              │
+│    albumart.py  QQ 音乐封面搜索下载                       │
+│    lyrics.py    歌词下载                                  │
+│    ffmpeg.py    ffmpeg 定位与自动下载                     │
+│    config.py    配置读写（config.json）                   │
+│    models.py    数据模型（任务/状态/格式规格）              │
+├─────────────────────────────────────────────────────────┤
+│  gui/    客户端层（PyQt5 + qfluentwidgets）               │
+│    main_window.py 主窗口（导航：转换/任务/设置）            │
+│    worker.py      QThread 桥接 core 引擎与 Qt 信号        │
+│    pages/         首页 / 任务列表 / 设置                  │
+├─────────────────────────────────────────────────────────┤
+│  main.py       GUI 入口                                   │
+│  main_cli.py   CLI 入口（无 GUI 运行 core）               │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### Linux & macOS 部署方法：   
-1. 检查python3 版本是否≥ 3.6.6   
-```
->> python3 --version
-Python 3.11.2
-```
-2. 检查是否已安装pip   
-```
->> python3 -m pip --version
-pip 23.0.1 from /usr/lib/python3/dist-packages/pip (python 3.11)
-```
-若未安装pip，请先安装pip，或在后面的过程中手动下载包并配置Python 环境    
-```Terminal
->> sudo apt install python3-pip
-```
-3. 从Github 克隆仓库到本地或下载zip 文件并解压   
-4. 前往[ffmpeg 官网](https://ffmpeg.org/download.html)，下载ffmpeg 独立程序并放置在 bin\\ffmpeg 文件夹下   
-5. 通过pip 安装所需包：
-```Terminal
-# 自动安装
->> pip install -r requirements.txt
-# 手动安装
->> pip install frida
->> pip install ....
+核心层与界面完全解耦：`ConversionEngine` 通过 `log_cb` / `task_cb` 回调对外汇报进度，GUI 用 Qt 信号订阅，CLI 直接 `print`。
+
+## 快速开始
+
+### 1. 创建虚拟环境并安装依赖（清华镜像）
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-6.通过编辑器如``vim``或``nano``打开您需要使用的脚本，如``flac2m4a_2.0.py``。    
-在这里，您可以注意到开头存在一些您需要修改的部分
-```python
-……
+> Windows 下将 `.venv/bin/pip` 换成 `.venv\Scripts\pip`。
 
-############################################3
-#！！！以下是你需要修改的内容！！！
-#输入路径
-input_dir = r'D:\Music\CloudMusic' 
+### 2. 准备 ffmpeg
 
-#输出路径
-output_dir = r'D:\TEMP\nms'
+程序会按以下顺序查找 ffmpeg/ffprobe：
 
-#是否保存缓存
-song_temp_keep=False #歌曲缓存保存
-pic_temp_keep=False #专辑图缓存保存
+1. 设置页中指定的 `ffmpeg_dir`
+2. 仓库内 `bin/ffmpeg` 目录
+3. 系统 PATH
 
+Linux/macOS 建议 `brew install ffmpeg` 或 `apt install ffmpeg`；Windows 可让程序自动下载（设置页/启动时提示），或手动下载后放入 `bin/ffmpeg`。
 
+### 3. 运行
 
-############################################
-#高级配置：
-pic_temp_dir = os.getcwd()+  r"\temp\pic"
-song_temp_dir =os.getcwd()+ r'\temp\wav'
-ffmpeg_dir = r'.\bin\ffmpeg\ffmpeg.exe'
+**GUI（推荐）**
 
-#############################################
-
-#定义运行Shell 方法
-def run_shell(shell):
-……
-```
-将上面的``input_dir``和``output_dir``更改为您的路径，然后保存文件。
-7.执行所需的项目文件
-```Terminal
->> python3 flac2m4a_2.0.py
+```bash
+.venv/bin/python main.py
 ```
 
+- 「转换」页：选择输入/输出目录、勾选转换类型、开始/停止，实时查看日志与进度
+- 「任务」页：每个文件的独立状态与进度表格
+- 「设置」页：ffmpeg 目录、线程数、缓存保留、封面/歌词开关
 
+**CLI（core 独立运行）**
 
-## 常见问题Q&A：
-**为什么使用Classic 里的脚本时，提示找不到ffmepg:**  
-若要使用Classic 里面的脚本，请注意还要复制一份ffmpeg到Basic 文件夹的根目录下。  
-**为什么我在运行脚本时提示缺少库**    
-每个脚本使用的库可能存在差异，若缺少某个库，请直接使用pip 安装行了。   
+```bash
+.venv/bin/python main_cli.py -i ~/Music/in -o ~/Music/out -f flac2m4a -f ogg2mp3
+.venv/bin/python main_cli.py -i ~/QQMusic -o ~/Music/out -f mgg2m4a --qq-music-dir ~/QQMusic
+```
 
-## 特别鸣谢：
-[decrypt-mflac-frida项目](https://github.com/yllhwa/decrypt-mflac-frida)  
+### 4. 配置
+
+配置文件为仓库根目录 `config.json`（GUI 保存设置或 CLI 运行时自动生成），内容示例：
+
+```json
+{
+  "input_dir": "",
+  "output_dir": "",
+  "qq_music_dir": "",
+  "ffmpeg_dir": "",
+  "kinds": ["flac2m4a", "ogg2m4a"],
+  "keep_temp": false,
+  "keep_temp_pic": false,
+  "download_cover": true,
+  "download_lyrics": false,
+  "threads": 4,
+  "process_name": "QQMusic.exe"
+}
+```
+
+### 5. 运行测试
+
+```bash
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+## 构建 Windows 版本（GitHub Actions）
+
+仓库内置了手动触发的构建工作流：仓库页面 **Actions → "构建 Windows 版本（手动触发）" → Run workflow**。
+
+工作流会：
+
+1. 自动下载 **最新** gyan.dev ffmpeg 构建（`release-essentials` 稳定版 / `git-essentials` 每日版可选），仅提取 `ffmpeg.exe` 与 `ffprobe.exe`
+2. 用 **PyInstaller** 打包为 **单文件 exe**（默认 `onefile`），把 ffmpeg、Frida 解密脚本一并内置——用户拿到单个 exe 即可直接使用，无需单独安装 ffmpeg
+3. 上传构建产物（可在 Artifacts 下载），可选创建 GitHub Release 草稿
+
+手动触发参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| ffmpeg_build | `release-essentials`（推荐，最新稳定版）/ `git-essentials`（每日最新） |
+| build_mode | `onefile` 单文件 exe / `onedir` 目录 + zip |
+| python_version | **Windows 7 兼容必须选 `3.9`**（3.10 起不再支持 Win7） |
+| create_release | 是否同时创建 Release 草稿 |
+
+### 本地打包（Windows 上）
+
+```powershell
+powershell -ExecutionPolicy Bypass -File build/package_windows.ps1
+```
+
+### Windows 7 兼容性说明
+
+- **Python 3.9**：最后一个官方支持 Windows 7 的 Python（3.10+ 要求 Win8.1+）
+- **PyInstaller 6.x**：bootloader 以 Windows 7 feature level（NTDDI 0x0601）编译，产出的 exe 可运行于 Win7
+- **内置 ffmpeg**：gyan.dev 最新构建在 Win7/8 下需要 UCRT（KB2999226）。注意 **Python 3.9 在 Win7 上同样要求 UCRT**，二者是同一个前置条件——已安装 UCRT 的 **Windows 7 SP1** 即可直接运行
+- **mgg/mflac 解密**：依赖 frida 与正在运行的 QQMusic.exe 进程，该功能的可用性取决于 frida 与 QQ 音乐客户端对 Win7 的支持
+
+## Frida 解密原理（bin/decrypt-qm/hook_qq_music.js）
+
+`hook_qq_music.js` 是 **Frida 注入脚本**，是整个 mgg/mflac 解密链的核心，**仍然必须使用**，打包时已内置：
+
+1. 在 `QQMusicCommon.dll` 中定位 `EncAndDesMediaFile` 类的构造/析构/`Open`/`GetSize`/`Read` 五个导出函数（C++ mangled 符号）
+2. 通过 Frida 附加到正在运行的 `QQMusic.exe`，向目标进程注入本脚本
+3. 脚本以 RPC 形式暴露 `decrypt(srcFileName, tmpFileName)`：在 QQ 音乐**自己的进程内**创建 `EncAndDesMediaFile` 对象、打开加密文件、调用其公开接口读出**已解密**的明文数据并写出
+
+即"借 QQ 音乐进程之手解密"，不需要逆向加密算法本身。调用方为 `core/decrypt.py` 的 `QQMusicDecryptor`（引擎中 `_run_decrypt` 在运行时加载该 JS 文件），构建时必须把 `bin/decrypt-qm/hook_qq_music.js` 一并打包（`--add-data`）。
+
+## 目录说明
+
+- `Classic/` 旧版单文件脚本（无 GUI，需手改路径），保留供参考
+- `bin/decrypt-qm/` Frida 解密脚本（hook_qq_music.js / hook_qq_music.py）
+- `Windows_Pack_Version/` 旧版 Windows 打包产物
+- 仓库根目录下的旧脚本（`mgg2m4a.py`、`flac2m4a_2.0.py` 等）为重构前的整合脚本，新功能以 `core/` + `gui/` 为准
+
+## 常见问题
+
+**提示找不到 ffmpeg**：见上文「准备 ffmpeg」，或在设置页点击「检测」。
+
+**提示缺少 frida / 无法附加 QQMusic.exe**：请先启动 QQ 音乐 PC 客户端，且 mgg/mflac 解密仅在 Windows 上可用（依赖 QQMusic.exe 进程）。
+
+## 特别鸣谢
+
+- [decrypt-mflac-frida 项目](https://github.com/yllhwa/decrypt-mflac-frida)
 
 ## 商标声明
 
-本项目使用以下术语仅用于标识兼容设备：
+iPod™、iTunes™、Apple® 是 Apple Inc. 的注册商标。本软件是独立开发项目，与 Apple Inc. 没有隶属关系，也不获得 Apple Inc. 的官方认可或支持。QQ 音乐™ 是腾讯公司的注册商标。
 
-- iPod™ 是 Apple Inc. 的注册商标
-- iTunes™ 是 Apple Inc. 的注册商标
-- Apple® 是 Apple Inc. 的注册商标
-
-本软件是独立开发项目，与 Apple Inc. 没有隶属关系，
-也不获得 Apple Inc. 的官方认可或支持。
-本软件中提及的 iPod™、iTunes™ 和 Apple® 名称和标志是 Apple Inc.在美国及其他国家和地区的注册商标或商标。本软件开发者与 Apple Inc. 不存在任何隶属关系，也不获得 Apple Inc.的直接或间接认可。使用这些商标仅用于说明本软件与相关产品的兼容性，不表示任何官方合作关系或认可。Apple Inc. 不对本软件的功能、性能或兼容性提供任何担保，也不对本软件的使用承担任何责任。
-
-开发者不承担因以下情形导致的任何责任：
-1. 用户违反版权法造成的法律后果
-2. 转换文件的后续使用行为
-3. 技术滥用导致的账户封禁/设备损坏
-4. 用户未按时删除转换文件的行为
+开发者不承担因以下情形导致的任何责任：用户违反版权法造成的法律后果、转换文件的后续使用行为、技术滥用导致的账户封禁/设备损坏、用户未按时删除转换文件的行为。
