@@ -3,7 +3,9 @@ PyQt5>=5.15.9
 PyQt-Fluent-Widgets>=1.5.0   # 包名即 qfluentwidgets（import 名）
 
 # 核心
-frida>=16.0.0        # QQ 音乐解密（mgg/mflac）
-mutagen>=1.47.0      # 封面嵌入 M4A
+frida==16.4.8        # QQ 音乐解密（mgg/mflac）。注意：frida 17.x 的 Python 源码
+                     # 需要 Python 3.11+，而 Windows 7 兼容构建使用 Python 3.9，
+                     # 因此固定 16.4.8（原作者验证版本，支持 py3.9）
+mutagen>=1.47.0      # 封面/歌词嵌入
 requests>=2.31.0     # 封面/歌词/ffmpeg 下载
 py7zr>=0.21.0        # ffmpeg 压缩包自动解压
