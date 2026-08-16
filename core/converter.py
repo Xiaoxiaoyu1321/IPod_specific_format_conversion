@@ -1,9 +1,11 @@
 """ffmpeg 转换封装：带进度解析（-progress pipe:1）与可中断支持。"""
 from __future__ import annotations
 
-import subprocess
 from pathlib import Path
+from subprocess import PIPE, STDOUT, TimeoutExpired
 from typing import Callable, Dict, List, Optional
+
+from . import process
 
 # QQ 音乐 ogg 标签里带的无意义字段，不写入输出元数据
 _DENY_TAGS = {
@@ -45,8 +47,8 @@ class Converter:
             *args,
         ]
         try:
-            proc = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            proc = process.popen(
+                cmd, stdout=PIPE, stderr=STDOUT,
                 text=True, encoding="utf-8", errors="replace", bufsize=1,
             )
         except OSError as exc:
@@ -60,7 +62,7 @@ class Converter:
                     proc.terminate()
                     try:
                         proc.wait(timeout=10)
-                    except subprocess.TimeoutExpired:
+                    except TimeoutExpired:
                         proc.kill()
                     raise ConversionError("任务已取消")
                 if progress_cb:

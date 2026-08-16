@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import json
-import subprocess
 from pathlib import Path
+from subprocess import TimeoutExpired
 from typing import Dict, Optional
 
+from . import process
 from .logger import Logger  # noqa: F401
 
 _log = Logger()
@@ -24,11 +25,11 @@ def probe(ffprobe: Path, src: Path) -> dict:
         str(src),
     ]
     try:
-        result = subprocess.run(
+        result = process.run(
             cmd, capture_output=True, text=True,
             encoding="utf-8", errors="replace", timeout=120,
         )
-    except (OSError, subprocess.TimeoutExpired) as exc:
+    except (OSError, TimeoutExpired) as exc:
         raise MetadataError(f"ffprobe 执行失败：{exc}") from exc
     if result.returncode != 0:
         raise MetadataError(f"ffprobe 无法读取 {src.name}")
@@ -79,8 +80,8 @@ def extract_cover(ffmpeg: Path, src: Path, dest: Path,
         str(dest),
     ]
     try:
-        subprocess.run(cmd, capture_output=True, timeout=120)
-    except (OSError, subprocess.TimeoutExpired):
+        process.run(cmd, capture_output=True, timeout=120)
+    except (OSError, TimeoutExpired):
         return False
     if should_stop and should_stop():
         return False
