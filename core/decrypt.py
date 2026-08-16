@@ -42,7 +42,12 @@ class QQMusicDecryptor:
         try:
             import frida
         except ImportError as exc:
-            raise DecryptError("未安装 frida，请先执行 pip install frida") from exc
+            # 区分“未安装”与“导入失败”（如 frida 17.x 在 Python 3.9 上不兼容），
+            # 把真实原因透传给用户，便于诊断
+            raise DecryptError(
+                f"frida 加载失败：{exc}。请确认安装了与当前 Python 兼容的 frida"
+                "（Python 3.9 请使用 frida 16.x，见 requirements.txt）"
+            ) from exc
         if not self.js_path.is_file():
             raise DecryptError(f"缺少 Frida 脚本：{self.js_path}")
 

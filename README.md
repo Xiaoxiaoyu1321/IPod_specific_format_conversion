@@ -154,7 +154,7 @@ powershell -ExecutionPolicy Bypass -File build/package_windows.ps1
 - **Python 3.9**：最后一个官方支持 Windows 7 的 Python（3.10+ 要求 Win8.1+）
 - **PyInstaller 6.x**：bootloader 以 Windows 7 feature level（NTDDI 0x0601）编译，产出的 exe 可运行于 Win7
 - **内置 ffmpeg**：gyan.dev 最新构建在 Win7/8 下需要 UCRT（KB2999226）。注意 **Python 3.9 在 Win7 上同样要求 UCRT**，二者是同一个前置条件——已安装 UCRT 的 **Windows 7 SP1** 即可直接运行
-- **mgg/mflac 解密**：依赖 frida 与正在运行的 QQMusic.exe 进程，该功能的可用性取决于 frida 与 QQ 音乐客户端对 Win7 的支持
+- **mgg/mflac 解密**：依赖 frida 与正在运行的 QQMusic.exe 进程，该功能的可用性取决于 frida 与 QQ 音乐客户端对 Win7 的支持。**frida 固定为 16.4.8**：frida 17.x 的 Python 源码需要 Python 3.11+，在兼容 Win7 的 Python 3.9 上无法加载（会报"frida 加载失败"），因此版本必须保持 16.x
 
 ## Frida 解密原理（bin/decrypt-qm/hook_qq_music.js）
 
@@ -185,7 +185,9 @@ main_cli.py       无 GUI 命令行入口
 
 **提示找不到 ffmpeg**：见上文「准备 ffmpeg」，或在设置页点击「检测」。
 
-**提示缺少 frida / 无法附加 QQMusic.exe**：请先启动 QQ 音乐 PC 客户端，且 mgg/mflac 解密仅在 Windows 上可用（依赖 QQMusic.exe 进程）。
+**提示"frida 加载失败"**：通常是 frida 版本与 Python 不兼容（frida 17.x 需 Python 3.11+，而 Win7 兼容构建使用 Python 3.9）。请使用 `pip install frida==16.4.8`（见 requirements.txt）。
+
+**提示无法附加 QQMusic.exe**：请先启动 QQ 音乐 PC 客户端，且 mgg/mflac 解密仅在 Windows 上可用（依赖 QQMusic.exe 进程）。
 
 ## 特别鸣谢
 
