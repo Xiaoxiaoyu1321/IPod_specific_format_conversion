@@ -1,19 +1,29 @@
 """配置管理：AppConfig 数据类 + JSON 持久化。
 
-配置文件默认位于仓库根目录 config.json，由 GUI/CLI 共用。
+路径约定（兼容 PyInstaller 打包）：
+    - PROJECT_ROOT：资源根目录。源码运行时为仓库根目录；PyInstaller 打包后
+      为运行时解压目录（sys._MEIPASS，只读），用于定位内置的
+      bin/decrypt-qm/hook_qq_music.js 与 bin/ffmpeg 等打包资源。
+    - DATA_DIR：数据目录。源码运行时等于 PROJECT_ROOT；打包后为 exe 所在目录
+      （可写、持久），用于存放 config.json 与下载的 ffmpeg 等运行时产物。
 """
 from __future__ import annotations
 
 import json
+import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
 
 from .models import FormatKind
 
-# 仓库根目录（core 位于 <root>/core/）
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config.json"
+# 仓库根目录（core 位于 <root>/core/）；PyInstaller 下为解压目录 _MEIPASS
+PROJECT_ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent))
+
+# 数据目录：打包后为 exe 所在目录（可写），源码运行时即仓库根目录
+_EXE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else PROJECT_ROOT
+DATA_DIR = _EXE_DIR
+DEFAULT_CONFIG_PATH = DATA_DIR / "config.json"
 
 # ffmpeg 下载地址（Windows 静态构建；其他平台建议 brew install ffmpeg 或放入 bin/ffmpeg）
 DEFAULT_FFMPEG_URL = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-essentials.7z"

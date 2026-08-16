@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Callable, List, Optional
 
 from . import albumart, lyrics, metadata
-from .config import PROJECT_ROOT
+from .config import DATA_DIR, PROJECT_ROOT
 from .converter import ConversionError, Converter
 from .decrypt import QQMusicDecryptor
 from .ffmpeg import FFmpegError, FFmpegLocator
@@ -22,8 +22,8 @@ from .models import (
 # 需要先解密再转换的类型
 _DECRYPT_KINDS = (FormatKind.MGG2M4A, FormatKind.MFLAC2M4A)
 
-# 临时目录
-_TEMP_ROOT = PROJECT_ROOT / "temp"
+# 临时目录（打包后位于 exe 旁，可写且持久）
+_TEMP_ROOT = DATA_DIR / "temp"
 _WAV_TEMP = _TEMP_ROOT / "wav"
 _PIC_TEMP = _TEMP_ROOT / "pic"
 _DE_TEMP = _TEMP_ROOT / "decrypted"

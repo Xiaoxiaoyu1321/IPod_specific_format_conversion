@@ -14,7 +14,7 @@ from typing import Callable, Optional, Tuple
 
 import requests
 
-from .config import PROJECT_ROOT, DEFAULT_FFMPEG_URL, AppConfig
+from .config import DATA_DIR, PROJECT_ROOT, DEFAULT_FFMPEG_URL, AppConfig
 
 
 class FFmpegError(RuntimeError):
@@ -34,7 +34,8 @@ class FFmpegLocator:
         candidates = []
         if self.config.ffmpeg_dir:
             candidates.append(Path(self.config.ffmpeg_dir) / exe)
-        candidates.append(PROJECT_ROOT / "bin" / "ffmpeg" / exe)
+        candidates.append(PROJECT_ROOT / "bin" / "ffmpeg" / exe)   # 打包内置
+        candidates.append(DATA_DIR / "bin" / "ffmpeg" / exe)       # 下载/手动放置
         for cand in candidates:
             if cand.is_file():
                 return cand
@@ -57,13 +58,13 @@ class FFmpegLocator:
     # ---- 下载 ----
     def download(self, url: Optional[str] = None,
                  progress_cb: Optional[Callable[[float], None]] = None) -> Tuple[Path, Path]:
-        """下载 ffmpeg 压缩包并尝试自动解压到 bin/ffmpeg。
+        """下载 ffmpeg 压缩包并尝试自动解压到数据目录 bin/ffmpeg。
 
         :param progress_cb: 下载进度回调 (0-100)
         :return: (ffmpeg, ffprobe) 路径
         """
         url = url or self.config.ffmpeg_download_url or DEFAULT_FFMPEG_URL
-        bin_dir = PROJECT_ROOT / "bin" / "ffmpeg"
+        bin_dir = DATA_DIR / "bin" / "ffmpeg"
         dl_dir = bin_dir / "download"
         dl_dir.mkdir(parents=True, exist_ok=True)
         archive = dl_dir / "ffmpeg.7z"

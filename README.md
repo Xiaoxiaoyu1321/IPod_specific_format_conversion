@@ -121,6 +121,48 @@ Linux/macOS 建议 `brew install ffmpeg` 或 `apt install ffmpeg`；Windows 可�
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
+## 构建 Windows 版本（GitHub Actions）
+
+仓库内置了手动触发的构建工作流：仓库页面 **Actions → "构建 Windows 版本（手动触发）" → Run workflow**。
+
+工作流会：
+
+1. 自动下载 **最新** gyan.dev ffmpeg 构建（`release-essentials` 稳定版 / `git-essentials` 每日版可选），仅提取 `ffmpeg.exe` 与 `ffprobe.exe`
+2. 用 **PyInstaller** 打包为 **单文件 exe**（默认 `onefile`），把 ffmpeg、Frida 解密脚本一并内置——用户拿到单个 exe 即可直接使用，无需单独安装 ffmpeg
+3. 上传构建产物（可在 Artifacts 下载），可选创建 GitHub Release 草稿
+
+手动触发参数：
+
+| 参数 | 说明 |
+| --- | --- |
+| ffmpeg_build | `release-essentials`（推荐，最新稳定版）/ `git-essentials`（每日最新） |
+| build_mode | `onefile` 单文件 exe / `onedir` 目录 + zip |
+| python_version | **Windows 7 兼容必须选 `3.9`**（3.10 起不再支持 Win7） |
+| create_release | 是否同时创建 Release 草稿 |
+
+### 本地打包（Windows 上）
+
+```powershell
+powershell -ExecutionPolicy Bypass -File build/package_windows.ps1
+```
+
+### Windows 7 兼容性说明
+
+- **Python 3.9**：最后一个官方支持 Windows 7 的 Python（3.10+ 要求 Win8.1+）
+- **PyInstaller 6.x**：bootloader 以 Windows 7 feature level（NTDDI 0x0601）编译，产出的 exe 可运行于 Win7
+- **内置 ffmpeg**：gyan.dev 最新构建在 Win7/8 下需要 UCRT（KB2999226）。注意 **Python 3.9 在 Win7 上同样要求 UCRT**，二者是同一个前置条件——已安装 UCRT 的 **Windows 7 SP1** 即可直接运行
+- **mgg/mflac 解密**：依赖 frida 与正在运行的 QQMusic.exe 进程，该功能的可用性取决于 frida 与 QQ 音乐客户端对 Win7 的支持
+
+## Frida 解密原理（bin/decrypt-qm/hook_qq_music.js）
+
+`hook_qq_music.js` 是 **Frida 注入脚本**，是整个 mgg/mflac 解密链的核心，**仍然必须使用**，打包时已内置：
+
+1. 在 `QQMusicCommon.dll` 中定位 `EncAndDesMediaFile` 类的构造/析构/`Open`/`GetSize`/`Read` 五个导出函数（C++ mangled 符号）
+2. 通过 Frida 附加到正在运行的 `QQMusic.exe`，向目标进程注入本脚本
+3. 脚本以 RPC 形式暴露 `decrypt(srcFileName, tmpFileName)`：在 QQ 音乐**自己的进程内**创建 `EncAndDesMediaFile` 对象、打开加密文件、调用其公开接口读出**已解密**的明文数据并写出
+
+即"借 QQ 音乐进程之手解密"，不需要逆向加密算法本身。调用方为 `core/decrypt.py` 的 `QQMusicDecryptor`（引擎中 `_run_decrypt` 在运行时加载该 JS 文件），构建时必须把 `bin/decrypt-qm/hook_qq_music.js` 一并打包（`--add-data`）。
+
 ## 目录说明
 
 - `Classic/` 旧版单文件脚本（无 GUI，需手改路径），保留供参考

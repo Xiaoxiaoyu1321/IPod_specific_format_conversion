@@ -11,7 +11,7 @@ import unittest
 import wave
 from pathlib import Path
 
-from core.config import PROJECT_ROOT, AppConfig
+from core.config import DATA_DIR, AppConfig
 from core.engine import ConversionEngine
 from core.models import TaskStatus
 
@@ -53,6 +53,9 @@ def make_wav(path: Path) -> None:
         w.writeframes(b"".join(struct.pack("<hh", 0, 0) for _ in range(4410)))
 
 
+# Windows 上无法执行无扩展名的假 ffmpeg 脚本，
+# 由 GitHub Actions 中的真实打包产物冒烟启动测试覆盖。
+@unittest.skipIf(os.name == "nt", "Windows 平台请通过打包产物冒烟测试验证")
 class TestEndToEnd(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -65,8 +68,8 @@ class TestEndToEnd(unittest.TestCase):
 
     def tearDown(self):
         self.tmp.cleanup()
-        # 清理引擎可能写入仓库 temp/ 的中间文件
-        shutil.rmtree(PROJECT_ROOT / "temp", ignore_errors=True)
+        # 清理引擎可能写入数据目录 temp/ 的中间文件
+        shutil.rmtree(DATA_DIR / "temp", ignore_errors=True)
 
     def _engine(self, kinds, **kw) -> ConversionEngine:
         cfg = AppConfig(
