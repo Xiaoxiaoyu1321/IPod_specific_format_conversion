@@ -13,7 +13,7 @@ from pathlib import Path
 
 from core.config import DATA_DIR, AppConfig
 from core.engine import ConversionEngine
-from core.models import TaskStatus
+from core.models import ConversionTask, FormatKind, TaskStatus
 
 FAKE_FFMPEG = """#!/usr/bin/env python3
 import os, sys, time
@@ -110,6 +110,33 @@ class TestEndToEnd(unittest.TestCase):
         engine.run()
         self.assertTrue(any(t.status == TaskStatus.SKIPPED
                             for t in self.tasks_log))
+
+    def test_mp3_and_flac_targets(self):
+        # 绕过解密，直接验证新目标格式的转换分支（mgg 解密产物为 ogg）
+        make_wav(self.src / "a.ogg")
+        make_wav(self.src / "b.flac")
+        engine = self._engine([])
+        engine._ensure_tools()  # run() 会自动调用，直接调 _convert_one 需手动
+        tasks = [
+            ConversionTask(kind=FormatKind.MGG2MP3,
+                           source=self.src / "a.ogg",
+                           output=self.out / "a.mp3"),
+            ConversionTask(kind=FormatKind.MGG2FLAC,
+                           source=self.src / "a.ogg",
+                           output=self.out / "a.flac"),
+            ConversionTask(kind=FormatKind.MFLAC2FLAC,
+                           source=self.src / "b.flac",
+                           output=self.out / "b.flac"),
+        ]
+        for task in tasks:
+            engine._convert_one(task)
+        self.assertTrue((self.out / "a.mp3").exists())
+        self.assertTrue((self.out / "a.flac").exists())
+        self.assertTrue((self.out / "b.flac").exists())
+        # mflac→flac 为整文件复制，内容应一致
+        self.assertEqual((self.out / "b.flac").read_bytes(),
+                         (self.src / "b.flac").read_bytes())
+        self.assertTrue(all(t.status == TaskStatus.COMPLETED for t in tasks))
 
     def test_decrypt_missing_src_dir_no_crash(self):
         # QQ 音乐目录不存在：应优雅失败，不中断引擎

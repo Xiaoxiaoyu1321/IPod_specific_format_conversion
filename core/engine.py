@@ -19,8 +19,10 @@ from .models import (
     FORMAT_SPECS, ConversionTask, FormatKind, TaskStatus,
 )
 
-# 需要先解密再转换的类型
-_DECRYPT_KINDS = (FormatKind.MGG2M4A, FormatKind.MFLAC2M4A)
+# 需要先解密再转换的类型（所有 needs_decrypt 的格式）
+_DECRYPT_KINDS = tuple(
+    k for k, s in FORMAT_SPECS.items() if s.needs_decrypt
+)
 
 # 临时目录（打包后位于 exe 旁，可写且持久）
 _TEMP_ROOT = DATA_DIR / "temp"
@@ -102,14 +104,18 @@ class ConversionEngine:
 
         if decrypt_kinds:
             decrypted = self._run_decrypt()
+            # 每个解密产物按选中的目标类型分别生成转换任务
             for path in decrypted:
-                kind = (FormatKind.MGG2M4A if path.suffix.lower() == ".ogg"
-                        else FormatKind.MFLAC2M4A)
-                normal_tasks.append(ConversionTask(
-                    kind=kind,
-                    source=path,
-                    output=Path(self.config.output_dir) / (path.stem + ".m4a"),
-                ))
+                for kind in decrypt_kinds:
+                    spec = FORMAT_SPECS[kind]
+                    if spec.decrypted_ext != path.suffix.lower():
+                        continue
+                    normal_tasks.append(ConversionTask(
+                        kind=kind,
+                        source=path,
+                        output=Path(self.config.output_dir)
+                               / (path.stem + spec.target_ext),
+                    ))
 
         if not normal_tasks:
             self.log.warning("没有找到可转换的文件，请检查输入目录与所选格式")
@@ -126,8 +132,8 @@ class ConversionEngine:
     # ---- QQ 音乐解密 ----
     def _run_decrypt(self) -> List[Path]:
         src_dir = Path(self.config.qq_music_dir or self.config.input_dir)
-        exts = [FORMAT_SPECS[k].source_exts[0]
-                for k in _DECRYPT_KINDS if k.value in self.config.kinds]
+        exts = sorted({FORMAT_SPECS[k].source_exts[0]
+                       for k in _DECRYPT_KINDS if k.value in self.config.kinds})
         decryptor = QQMusicDecryptor(
             PROJECT_ROOT / "bin" / "decrypt-qm" / "hook_qq_music.js",
             self.config.process_name,
@@ -222,18 +228,35 @@ class ConversionEngine:
         # 1) 封面：先尝试从源文件提取，失败且允许联网时再搜索下载
         cover = self._prepare_cover(task, tags)
 
-        # 2) 转换
-        if task.kind == FormatKind.OGG2MP3:
+        # 2) 转换（按目标格式分发）
+        target = task.output.suffix.lower()
+        if target == ".m4a":
+            self._convert_to_m4a(task, src, tags, duration)
+        elif target == ".mp3":
             self._converter.to_mp3(
                 src, task.output, tags, duration,
                 lambda p: self._set_progress(task, p),
                 self._stop.is_set,
             )
+        elif target == ".flac":
+            if src.suffix.lower() == ".flac":
+                # mflac 解密产物本身已是 flac：直接复制
+                self._converter.copy_file(
+                    src, task.output,
+                    lambda p: self._set_progress(task, p),
+                    self._stop.is_set,
+                )
+            else:
+                self._converter.to_flac(
+                    src, task.output, tags, duration,
+                    lambda p: self._set_progress(task, p),
+                    self._stop.is_set,
+                )
         else:
-            self._convert_to_m4a(task, src, tags, duration)
+            raise ConversionError(f"不支持的目标格式：{target}")
 
-        # 3) 嵌入封面
-        if cover and task.output.suffix.lower() == ".m4a":
+        # 3) 嵌入封面（M4A/MP3/FLAC 均支持）
+        if cover:
             task.status = TaskStatus.EMBEDDING
             task.progress = 100.0
             self._emit_task(task)
@@ -242,8 +265,8 @@ class ConversionEngine:
             else:
                 self.log.warning(f"封面嵌入失败：{task.output.name}")
 
-        # 4) 歌词（可选）
-        if self.config.download_lyrics and task.output.suffix.lower() == ".m4a":
+        # 4) 歌词（可选）：保存 .lrc 并嵌入标签
+        if self.config.download_lyrics:
             self._fetch_lyrics(task, tags)
 
         # 5) 清理临时文件
@@ -283,8 +306,6 @@ class ConversionEngine:
 
     # ---- 辅助 ----
     def _prepare_cover(self, task: ConversionTask, tags: dict) -> Optional[Path]:
-        if task.kind == FormatKind.OGG2MP3:
-            return None  # MP3 封面嵌入暂不支持，保持与旧版一致
         pic_dir = _PIC_TEMP
         pic_dir.mkdir(parents=True, exist_ok=True)
         pic_file = pic_dir / (task.source.stem + ".jpg")
@@ -312,6 +333,11 @@ class ConversionEngine:
             self.log.info(f"歌词已保存：{out.name}")
         except OSError as exc:
             self.log.warning(f"歌词保存失败：{exc}")
+        # 嵌入歌词到文件标签（失败不影响结果）
+        if metadata.embed_lyrics(task.output, text):
+            self.log.info(f"歌词已嵌入：{task.output.name}")
+        else:
+            self.log.warning(f"歌词嵌入失败：{task.output.name}")
 
     def _cleanup(self, task: ConversionTask, cover: Optional[Path]) -> None:
         if not self.config.keep_temp_pic and cover and cover.parent == _PIC_TEMP:

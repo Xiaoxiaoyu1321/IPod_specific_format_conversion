@@ -13,9 +13,17 @@ from core.models import FORMAT_SPECS, ConversionTask, FormatKind, TaskStatus
 
 class TestModels(unittest.TestCase):
     def test_format_specs_complete(self):
-        self.assertEqual(len(FORMAT_SPECS), 8)
+        self.assertEqual(len(FORMAT_SPECS), 12)
         self.assertTrue(FORMAT_SPECS[FormatKind.MGG2M4A].needs_decrypt)
         self.assertTrue(FORMAT_SPECS[FormatKind.VIDEO2MP4].is_video)
+        # QQ 音乐多目标转换：mgg/mflac → m4a/flac/mp3
+        for kind in (FormatKind.MGG2FLAC, FormatKind.MGG2MP3,
+                     FormatKind.MFLAC2FLAC, FormatKind.MFLAC2MP3):
+            self.assertTrue(FORMAT_SPECS[kind].needs_decrypt)
+            expected = ".ogg" if kind.value.startswith("mgg") else ".flac"
+            self.assertEqual(FORMAT_SPECS[kind].decrypted_ext, expected)
+        self.assertEqual(FORMAT_SPECS[FormatKind.MFLAC2FLAC].target_ext, ".flac")
+        self.assertEqual(FORMAT_SPECS[FormatKind.MGG2MP3].target_ext, ".mp3")
 
     def test_task_roundtrip(self):
         task = ConversionTask(
@@ -124,6 +132,56 @@ class TestEngineFlow(unittest.TestCase):
             engine._convert_one(task)
             self.assertEqual(task.status, TaskStatus.SKIPPED)
             self.assertIn("已存在", task.message)
+
+
+class TestMultiTargetDecrypt(unittest.TestCase):
+    """解密产物 → 多个目标格式的任务生成（monkeypatch 掉真实解密）。"""
+
+    def test_decrypted_files_fan_out_to_selected_kinds(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            cfg = AppConfig(
+                input_dir=str(root),
+                output_dir=str(root / "out"),
+                kinds=["mgg2m4a", "mgg2flac", "mgg2mp3", "mflac2mp3"],
+            )
+            engine = ConversionEngine(cfg)
+            engine._ensure_tools = lambda: None      # 跳过 ffmpeg 定位
+            engine._run_decrypt = lambda: [
+                Path("/tmp/dec/song.ogg"), Path("/tmp/dec/track.flac"),
+            ]
+            calls = []
+            engine._convert_one = lambda task: calls.append(task)
+
+            engine.run()
+
+            got = sorted((t.kind.value, t.source.name, t.output.suffix)
+                         for t in calls)
+            self.assertEqual(got, [
+                ("mflac2mp3", "track.flac", ".mp3"),
+                ("mgg2flac", "song.ogg", ".flac"),
+                ("mgg2m4a", "song.ogg", ".m4a"),
+                ("mgg2mp3", "song.ogg", ".mp3"),
+            ])
+
+    def test_only_matching_kinds_get_tasks(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            cfg = AppConfig(
+                input_dir=str(root),
+                output_dir=str(root / "out"),
+                kinds=["mflac2flac", "mgg2mp3"],   # 只有 mflac→flac 与 mgg→mp3
+            )
+            engine = ConversionEngine(cfg)
+            engine._ensure_tools = lambda: None
+            engine._run_decrypt = lambda: [Path("/tmp/dec/track.flac")]
+            calls = []
+            engine._convert_one = lambda task: calls.append(task)
+
+            engine.run()
+
+            self.assertEqual([(t.kind.value, t.output.suffix) for t in calls],
+                             [("mflac2flac", ".flac")])
 
 
 if __name__ == "__main__":
